@@ -1,6 +1,6 @@
 # Emotion_Classification
 
-This Project is an attempt to build a bi-lstm model for emotion classification through analysis of facial landmarks and mel spectrogram data of speech.
+This Project builds a bi-lstm model for emotion classification by analysing facial landmarks and mel spectrogram data of speech.
 
 The project makes use of the RAVDESS dataset. This dataset is made up of a series of videos by a number of actors in which one of two lines is spoken while expressing one of eight emotions. From these videos, the project gathers facial landmarks, mel spectrograms and phonemes.
 
