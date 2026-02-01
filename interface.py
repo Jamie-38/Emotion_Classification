@@ -20,16 +20,6 @@ import argparse
 
 np.set_printoptions(precision=17)
 
-# landmark_model_path = 'E:/projects/face/spyder_project/face/face_landmarker.task'
-# actor_directory = 'E:/projects/face/media/unziped/Actor_03/'
-
-# # MFA
-# model_directory = 'E:/projects/face/MFA/pretrained_models/acoustic/english_mfa.zip'
-# dictionary_path = 'E:/projects/face/MFA/pretrained_models/dictionary/english_mfa.dict'
-# output_path = "E:/projects/face/MFA/output/"
-
-
-
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--landmark_model", required=True, help="Path to MediaPipe face_landmarker.task")
@@ -234,4 +224,5 @@ def main():
 if __name__ == "__main__":
     main()
     
+
 
