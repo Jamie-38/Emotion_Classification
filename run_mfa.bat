@@ -1,6 +1,9 @@
 @echo off
-REM Activate the Conda environment
-call E:\MiniConda\Scripts\activate.bat E:\MiniConda\envs\aligner
+setlocal
 
-REM Run the MFA alignment command
-python -m montreal_forced_aligner align %1 %2 %3 %4 %5
+REM Run MFA using the currently active Python environment.
+REM Requirement: montreal-forced-aligner must be installed in this environment.
+
+python -m montreal_forced_aligner align %1 %2 %3 %4
+
+endlocal
