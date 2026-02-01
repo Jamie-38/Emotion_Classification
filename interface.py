@@ -16,16 +16,29 @@ import os
 from pathlib import Path
 import h5py
 import numpy as np
+import argparse
 
 np.set_printoptions(precision=17)
 
-landmark_model_path = 'E:/projects/face/spyder_project/face/face_landmarker.task'
-actor_directory = 'E:/projects/face/media/unziped/Actor_03/'
+# landmark_model_path = 'E:/projects/face/spyder_project/face/face_landmarker.task'
+# actor_directory = 'E:/projects/face/media/unziped/Actor_03/'
 
-# MFA
-model_directory = 'E:/projects/face/MFA/pretrained_models/acoustic/english_mfa.zip'
-dictionary_path = 'E:/projects/face/MFA/pretrained_models/dictionary/english_mfa.dict'
-output_path = "E:/projects/face/MFA/output/"
+# # MFA
+# model_directory = 'E:/projects/face/MFA/pretrained_models/acoustic/english_mfa.zip'
+# dictionary_path = 'E:/projects/face/MFA/pretrained_models/dictionary/english_mfa.dict'
+# output_path = "E:/projects/face/MFA/output/"
+
+
+
+def parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument("--landmark_model", required=True, help="Path to MediaPipe face_landmarker.task")
+    p.add_argument("--actor_dir", required=True, help="Directory containing RAVDESS actor videos")
+    p.add_argument("--mfa_model", required=True, help="Path to MFA acoustic model zip")
+    p.add_argument("--mfa_dict", required=True, help="Path to MFA pronunciation dictionary")
+    p.add_argument("--mfa_out", default="./mfa_output", help="Output directory for MFA + HDF5 shards")
+    return p.parse_args()
+
 
 def split_file_name(file_name):
     """
@@ -135,81 +148,90 @@ def print_training_frames(training_frames):
         print("LandMarks: ", frame.landmarks)
 
 
-# Process each video in the actor directory   
-for video in os.listdir(actor_directory): 
-    
-    # Get emotion ID and spoken statement from video name
-    file_name = Path(video).stem
-    filename_ids = split_file_name(file_name)
-    statement_id = filename_ids[4]
-    emotion_id = filename_ids[2]
-    
-    video_path = os.path.join(actor_directory, video)   
-    
-    # Only process videos with audio
-    if filename_ids[0] == "01":
-        
-        video_path = os.path.join(actor_directory, video)
-        
-        if os.path.isfile(video_path):
-            print(video_path)
+def main():
+    args = parse_args()
 
-        output_dir = os.path.join(output_path, file_name)
-        os.makedirs(output_dir, exist_ok=True)
-    
-        converted_audio_output_path = os.path.join(output_dir, file_name + '.wav')
-        statement_path = os.path.join(output_dir, file_name + '.txt')
-        textgrid_path = os.path.join(output_dir, file_name + '.TextGrid')        
-        HDF5_file_path = os.path.join(output_dir, file_name + '.hdf5')
-        
-        landmark_gen = FaceLandMarkGenerator(landmark_model_path)  
-        video_controller = VideoController(video_path)
-        audio_controller = AudioController(video_path, converted_audio_output_path)       
-        
-        create_statement_txt(statement_id, statement_path)
-        run_mfa_alignment(output_dir, model_directory, dictionary_path, output_dir)
-        textgrid = Read_Textgrid(textgrid_path)
-        phones = textgrid.grid['phones']       
-        
-        training_frames = []
-    
-        # Process video frames
-        for frame, timestamp, frame_index in video_controller.process_video():            
-            
-            face_landmarks_list = landmark_gen.find_landmarks(frame, timestamp)
-            phoneme = retrive_phoneme(timestamp, phones)
-            mel_segment = audio_controller.retrive_mel_segment(timestamp, video_controller.frame_duration_ms)
-            
-            training_frame = Training_Frame(emotion_id, frame_index, face_landmarks_list, phoneme, mel_segment)
-            training_frames.append(training_frame)
-            
-            
-            landmark_gen.draw_landmarks(frame, face_landmarks_list)        
-            #video_controller.show_frame(frame)
-    
-            
-        # Create an instance of HDF5_Container and add data
-        hdf5_container = HDF5_Container(HDF5_file_path)
-        hdf5_container.create_hdf5_file()
-        
-        # Add data to HDF5
-        hdf5_container.add_video_data_batch(file_name, emotion_id, training_frames)
-        hdf5_container.close_hdf5_file()
-        
-        # Read all data from the HDF5 file
-        all_data = hdf5_container.read_video_data(HDF5_file_path)
-        
-        # Access and process the data
-        #read_video_name = all_data['video_name']
-        read_emotion = all_data['emotion']
-        read_frames = all_data['frames']
-        
-        full_mel = combine_mel_segments_HDF5(all_data)
-        audio_controller.show_melspectrogram(full_mel, audio_controller.sr, audio_controller.hop_length)
-        
-        
+    landmark_model_path = args.landmark_model
+    actor_directory = args.actor_dir
+    model_directory = args.mfa_model
+    dictionary_path = args.mfa_dict
+    output_path = args.mfa_out  
     
         
+    # Process each video in the actor directory   
+    for video in os.listdir(actor_directory): 
+        
+        # Get emotion ID and spoken statement from video name
+        file_name = Path(video).stem
+        filename_ids = split_file_name(file_name)
+        statement_id = filename_ids[4]
+        emotion_id = filename_ids[2]
+        
+        video_path = os.path.join(actor_directory, video)   
+        
+        # Only process videos with audio
+        if filename_ids[0] == "01":
+            
+            video_path = os.path.join(actor_directory, video)
+            
+            if os.path.isfile(video_path):
+                print(video_path)
+    
+            output_dir = os.path.join(output_path, file_name)
+            os.makedirs(output_dir, exist_ok=True)
+        
+            converted_audio_output_path = os.path.join(output_dir, file_name + '.wav')
+            statement_path = os.path.join(output_dir, file_name + '.txt')
+            textgrid_path = os.path.join(output_dir, file_name + '.TextGrid')        
+            HDF5_file_path = os.path.join(output_dir, file_name + '.hdf5')
+            
+            landmark_gen = FaceLandMarkGenerator(landmark_model_path)  
+            video_controller = VideoController(video_path)
+            audio_controller = AudioController(video_path, converted_audio_output_path)       
+            
+            create_statement_txt(statement_id, statement_path)
+            run_mfa_alignment(output_dir, model_directory, dictionary_path, output_dir)
+            textgrid = Read_Textgrid(textgrid_path)
+            phones = textgrid.grid['phones']       
+            
+            training_frames = []
+        
+            # Process video frames
+            for frame, timestamp, frame_index in video_controller.process_video():            
+                
+                face_landmarks_list = landmark_gen.find_landmarks(frame, timestamp)
+                phoneme = retrive_phoneme(timestamp, phones)
+                mel_segment = audio_controller.retrive_mel_segment(timestamp, video_controller.frame_duration_ms)
+                
+                training_frame = Training_Frame(emotion_id, frame_index, face_landmarks_list, phoneme, mel_segment)
+                training_frames.append(training_frame)
+                
+                
+                landmark_gen.draw_landmarks(frame, face_landmarks_list)        
+                #video_controller.show_frame(frame)
+        
+                
+            # Create an instance of HDF5_Container and add data
+            hdf5_container = HDF5_Container(HDF5_file_path)
+            hdf5_container.create_hdf5_file()
+            
+            # Add data to HDF5
+            hdf5_container.add_video_data_batch(file_name, emotion_id, training_frames)
+            hdf5_container.close_hdf5_file()
+            
+            # Read all data from the HDF5 file
+            all_data = hdf5_container.read_video_data(HDF5_file_path)
+            
+            # Access and process the data
+            #read_video_name = all_data['video_name']
+            read_emotion = all_data['emotion']
+            read_frames = all_data['frames']
+            
+            full_mel = combine_mel_segments_HDF5(all_data)
+            audio_controller.show_melspectrogram(full_mel, audio_controller.sr, audio_controller.hop_length)
+    
 
-
+if __name__ == "__main__":
+    main()
+    
 
