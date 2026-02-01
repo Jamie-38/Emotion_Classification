@@ -7,6 +7,7 @@ Created on Fri Jun 14 21:43:19 2024
 
 import subprocess
 import os
+from pathlib import Path
 
 def run_mfa_alignment(input_path, model_directory, dictionary_path, output_directory):
     """
@@ -27,7 +28,7 @@ def run_mfa_alignment(input_path, model_directory, dictionary_path, output_direc
     
     
     # Path to the batch script
-    batch_script_path = 'E:/projects/face/spyder_project/face/run_mfa.bat'
+    batch_script_path = str(Path(__file__).with_name("run_mfa.bat"))
 
     command = [
         batch_script_path,
@@ -45,7 +46,7 @@ def run_mfa_alignment(input_path, model_directory, dictionary_path, output_direc
     print(f"Output directory: {output_directory} - Exists: {os.path.exists(output_directory)}")
 
     try:
-        result = subprocess.run(command, check=True, capture_output=True, text=True, shell=True)
+        result = subprocess.run(command, check=True, capture_output=True, text=True)
         print("MFA alignment completed successfully.")
         print("Output:", result.stdout)
     except subprocess.CalledProcessError as e:
@@ -54,5 +55,6 @@ def run_mfa_alignment(input_path, model_directory, dictionary_path, output_direc
         print(f"Command stderr: {e.stderr}")
     except FileNotFoundError as e:
         print(f"FileNotFoundError: {e}")
+
 
 
