@@ -5,12 +5,12 @@ Created on Wed Jun 12 19:52:22 2024
 @author: Jayyy
 """
 from video_controller import VideoController
-from FaceLandmarkGenerator import FaceLandMarkGenerator
-from AudioController import AudioController
-from Aligner import run_mfa_alignment
-from StorageController import HDF5_Container
-from TrainingFrame import Training_Frame
-from TextGridController import Read_Textgrid
+from face_landmark_generator import FaceLandMarkGenerator
+from audio_controller import AudioController
+from aligner import run_mfa_alignment
+from storage_controller import HDF5_Container
+from training_frame import Training_Frame
+from textgrid_controller import Read_Textgrid
 
 import os
 from pathlib import Path
@@ -210,4 +210,5 @@ for video in os.listdir(actor_directory):
         
     
         
+
 
