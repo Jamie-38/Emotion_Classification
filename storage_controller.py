@@ -41,38 +41,43 @@ class HDF5_Container:
         """
         self.file.close()
 
-    def add_video_data_batch(self, video_name, emotion, training_frames):
-        """
-        Add a batch of video data to the HDF5 file.
-        
-        Parameters:
-        video_name (str): The name of the video.
-        emotion (str): The emotion label for the video.
-        training_frames (list): A list of Training_Frame objects containing the data to add.
-        """
-        if emotion not in self.file:
-            emotion_group = self.file.create_group(emotion)
+def add_video_data_batch(self, video_name, emotion, training_frames):
+    """
+    Store data as: /<video_name>/<emotion>/<frame_index>/{landmarks, mel, phoneme}
+    """
+    video_group = self.file.require_group(str(video_name))
+    emotion_str = f"{int(emotion):02d}"
+    emotion_group = video_group.require_group(emotion_str)
+
+    for frame in training_frames:
+        frame_index = frame.frame_index
+        frame_group = emotion_group.require_group(str(frame_index))
+
+        # If re-running, overwrite existing datasets
+        for key in ("landmarks", "mel", "phoneme"):
+            if key in frame_group:
+                del frame_group[key]
+
+        # Landmarks: flatten nested structure if needed
+        if frame.landmarks and isinstance(frame.landmarks[0], list):
+            landmarks_array = np.array(
+                [[lm.x, lm.y, lm.z] for sublist in frame.landmarks for lm in sublist],
+                dtype=np.float64
+            )
         else:
-            emotion_group = self.file[emotion]
+            landmarks_array = np.array(
+                [[lm.x, lm.y, lm.z] for lm in frame.landmarks],
+                dtype=np.float64
+            )
 
-        for frame in training_frames:
-            frame_index = frame.frame_index
-            if str(frame_index) in emotion_group:
-                frame_group = emotion_group[str(frame_index)]
-            else:
-                frame_group = emotion_group.create_group(str(frame_index))
+        frame_group.create_dataset('landmarks', data=landmarks_array, dtype='float64')
+        frame_group.create_dataset('mel', data=frame.mel_segment, dtype='float64')
 
-            if isinstance(frame.landmarks[0], list):
-                # Flatten the list of landmarks
-                landmarks_array = np.array([[lm.x, lm.y, lm.z] for sublist in frame.landmarks for lm in sublist], dtype=np.float64)
-            else:
-                landmarks_array = np.array([[lm.x, lm.y, lm.z] for lm in frame.landmarks], dtype=np.float64)
+        translated_phoneme = phoneme_to_int.get(frame.phoneme, -1)
+        frame_group.create_dataset('phoneme', data=translated_phoneme, dtype='int32')
 
-            frame_group.create_dataset('landmarks', data=landmarks_array, dtype='float64')
-            frame_group.create_dataset('mel', data=frame.mel_segment, dtype='float64')
-            translated_phoneme = phoneme_to_int.get(frame.phoneme, -1)  # Use -1 for unknown phonemes
-            frame_group.create_dataset('phoneme', data=translated_phoneme, dtype='int32')
-            print(f"Created datasets for {video_name}/{emotion}/{frame_index}")
+        print(f"Created datasets for {video_name}/{emotion_str}/{frame_index}")
+
 
     def read_video_data(self, path):
         """
@@ -110,3 +115,4 @@ class HDF5_Container:
             }
 
         return all_data
+
