@@ -208,21 +208,11 @@ def main():
             # Add data to HDF5
             hdf5_container.add_video_data_batch(file_name, emotion_id, training_frames)
             hdf5_container.close_hdf5_file()
-            
-            # Read all data from the HDF5 file
-            all_data = hdf5_container.read_video_data(HDF5_file_path)
-            
-            # Access and process the data
-            #read_video_name = all_data['video_name']
-            read_emotion = all_data['emotion']
-            read_frames = all_data['frames']
-            
-            full_mel = combine_mel_segments_HDF5(all_data)
-            audio_controller.show_melspectrogram(full_mel, audio_controller.sr, audio_controller.hop_length)
     
 
 if __name__ == "__main__":
     main()
     
+
 
 
