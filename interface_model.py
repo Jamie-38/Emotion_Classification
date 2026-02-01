@@ -4,8 +4,8 @@ import tensorflow as tf
 import datetime
 import h5py
 import time
-from Storage_Controller import HDF5_Container
-from Emotion_Classifier import create_emotion_classifier
+from storage_controller_model import HDF5_Container
+from emotion_classifier import create_emotion_classifier
 
 # Define constants
 sequence_length = 30
@@ -211,3 +211,4 @@ if __name__ == "__main__":
         epoch_start_time = time.time()
         model.fit(train_dataset, epochs=1, steps_per_epoch=train_steps_per_epoch, validation_data=test_dataset, validation_steps=test_steps_per_epoch, callbacks=[tensorboard_callback])
         print(f"Time taken for epoch {epoch + 1}: {time.time() - epoch_start_time:.2f} seconds")
+
