@@ -180,7 +180,7 @@ for video in os.listdir(actor_directory):
             phoneme = retrive_phoneme(timestamp, phones)
             mel_segment = audio_controller.retrive_mel_segment(timestamp, video_controller.frame_duration_ms)
             
-            training_frame = Training_Frame(statement_id, frame_index, face_landmarks_list, phoneme, mel_segment) 
+            training_frame = Training_Frame(emotion_id, frame_index, face_landmarks_list, phoneme, mel_segment)
             training_frames.append(training_frame)
             
             
@@ -210,5 +210,6 @@ for video in os.listdir(actor_directory):
         
     
         
+
 
 
