@@ -70,7 +70,7 @@ These are concatenated and fed into **Bidirectional LSTMs** for temporal modelli
 - `audio_controller.py` — extracts audio (ffmpeg) and generates mel spectrogram segments  
 - `face_landmark_generator.py` — runs MediaPipe face landmark detection  
 - `aligner.py` + `run_mfa.bat` — runs Montreal Forced Aligner (MFA) to generate TextGrid alignments  
-- `textGrid_controller.py` — parses TextGrid and exposes phoneme intervals  
+- `textgrid_controller.py` — parses TextGrid and exposes phoneme intervals  
 - `training_frame.py` — frame-level container (landmarks, mel segment, phoneme)  
 - `storage_controller.py` — writes per-frame data to HDF5  
 - `hdf5_merger.py` — links/merges multiple HDF5 files  
