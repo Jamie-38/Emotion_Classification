@@ -66,17 +66,17 @@ These are concatenated and fed into **Bidirectional LSTMs** for temporal modelli
 
 ## Repo structure
 
-- `Video_Controller.py` — reads video frames and timestamps  
-- `Audio_Controller.py` — extracts audio (ffmpeg) and generates mel spectrogram segments  
-- `Face_Landmark_Generator.py` — runs MediaPipe face landmark detection  
-- `Aligner.py` + `run_mfa.bat` — runs Montreal Forced Aligner (MFA) to generate TextGrid alignments  
-- `TextGrid_Controller.py` — parses TextGrid and exposes phoneme intervals  
-- `Training_Frame.py` — frame-level container (landmarks, mel segment, phoneme)  
-- `Storage_Controller.py` — writes per-frame data to HDF5  
-- `HDF5_Merger.py` — links/merges multiple HDF5 files  
-- `Emotion_Classifier.py` — model definition (multimodal + Bi-LSTM)  
-- `Interface.py` — end-to-end dataset processing prototype  
-- `Interface_Model.py` — dataset loading (`tf.data`) + training loop prototype
+- `video_controller.py` — reads video frames and timestamps  
+- `audio_controller.py` — extracts audio (ffmpeg) and generates mel spectrogram segments  
+- `face_landmark_generator.py` — runs MediaPipe face landmark detection  
+- `aligner.py` + `run_mfa.bat` — runs Montreal Forced Aligner (MFA) to generate TextGrid alignments  
+- `textGrid_controller.py` — parses TextGrid and exposes phoneme intervals  
+- `training_frame.py` — frame-level container (landmarks, mel segment, phoneme)  
+- `storage_controller.py` — writes per-frame data to HDF5  
+- `hdf5_merger.py` — links/merges multiple HDF5 files  
+- `emotion_classifier.py` — model definition (multimodal + Bi-LSTM)  
+- `interface.py` — end-to-end dataset processing prototype  
+- `interface_model.py` — dataset loading (`tf.data`) + training loop prototype
 
 ---
 
