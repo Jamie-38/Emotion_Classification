@@ -4,6 +4,7 @@ import tensorflow as tf
 import datetime
 import h5py
 import time
+import argparse
 from storage_controller_model import HDF5_Container
 from emotion_classifier import create_emotion_classifier
 
@@ -187,7 +188,11 @@ def create_tf_dataset(metadata, batch_size, hdf5_path):
 
 if __name__ == "__main__":
 
-    HDF5_file_path = 'E:/projects/face_model/training_data/merged_data_file.hdf5'
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--hdf5", required=True, help="Path to merged HDF5 file")
+    args = ap.parse_args()
+
+    HDF5_file_path = args.hdf5
 
     data = HDF5_Container(HDF5_file_path)
     metadata = [(video_data['video_name'], video_data['emotion']) for video_data in data.read_video_data()]
